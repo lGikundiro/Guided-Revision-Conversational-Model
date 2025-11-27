@@ -1,0 +1,34 @@
+# Render Deployment Configuration
+
+services:
+  # FastAPI Prediction Service
+  - type: web
+    name: urbansound-api
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn src.prediction:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_PATH
+        value: /opt/render/project/src/models/us8k_cnn.h5
+      - key: CLASSES_PATH
+        value: /opt/render/project/src/models/classes.joblib
+      - key: PYTHON_VERSION
+        value: 3.10.0
+    
+  # Streamlit UI Service
+  - type: web
+    name: urbansound-ui
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run src/ui.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: api_url
+        sync: false  # Set this to your API service URL after deploying API
+      - key: PYTHON_VERSION
+        value: 3.10.0

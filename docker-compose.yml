@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/app/models/us8k_cnn.h5
+      - CLASSES_PATH=/app/models/classes.joblib
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    restart: unless-stopped
+  
+  ui:
+    build: .
+    command: streamlit run src/ui.py --server.port 8501 --server.address 0.0.0.0
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./:/app
+    environment:
+      - api_url=http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped
