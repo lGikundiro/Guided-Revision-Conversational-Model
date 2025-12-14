@@ -31,6 +31,21 @@ def startup_event():
     load_model()
 
 
+@app.get('/')
+def root():
+    return {
+        'message': 'Audio Classification API',
+        'endpoints': {
+            'GET /': 'API information',
+            'GET /health': 'Health check',
+            'POST /predict': 'Predict audio class (upload .wav file)',
+            'POST /retrain': 'Trigger model retraining'
+        },
+        'model_loaded': model is not None,
+        'classes': classes if classes else []
+    }
+
+
 def prepare_mel_from_bytes(file_bytes, sr=22050, n_mels=128, duration=4.0):
     data, sr = librosa.load(io.BytesIO(file_bytes), sr=sr, mono=True, duration=duration)
     target_length = int(sr * duration)
